@@ -30,7 +30,24 @@ function validate_wires(Wires)
 
     % Поэлементный перебор проводников для проверки физических и логических условий
     for i = 1:length(Wires)
+       
+
+        % Проверка числовых полей на соответствие типу данных
+        numeric_fields = {'x', 'y', 'U', 'r0', 'N', 'd'};
+        for f = 1:length(numeric_fields)
+            field_name = numeric_fields{f};
+            if ~isnumeric(Wires(i).(field_name))
+                error('Ошибка в проводе №%d: поле "%s" должно быть числового типа (текущий тип: %s).', ...
+                    i, field_name, class(Wires(i).(field_name)));
+            end
+        end
         
+        % Проверка поля флага расщепления на соответствие логическому типу данных
+        if ~islogical(Wires(i).is_splited)
+            error('Ошибка в проводе №%d: поле "is_splited" должно быть логического типа (logical) (текущий тип: %s).', ...
+                i, class(Wires(i).is_splited));
+        end
+
         % Проверка координаты Y на строгое нахождение выше уровня земли
         if isempty(Wires(i).y) || isnan(Wires(i).y) || Wires(i).y <= 0
             error('Ошибка в проводе №%d: координата "y" (текущее значение: %s) должна быть строго больше 0.', ...
@@ -45,6 +62,7 @@ function validate_wires(Wires)
         
         % Проверка логической связности параметров расщепления при активном флаге
         if islogical(Wires(i).is_splited) && Wires(i).is_splited
+           
             % Проверка числа проводников в группе расщепления N
             if isempty(Wires(i).N) || isnan(Wires(i).N) || Wires(i).N <= 1
                 error('Ошибка в проводе №%d: для расщепленного провода (is_splited = true) число элементов "N" должно быть больше 1 (текущее: %s).', ...
